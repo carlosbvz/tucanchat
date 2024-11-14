@@ -1,0 +1,17 @@
+{
+  "editor.formatOnSave": true, // Format files on save
+  "editor.defaultFormatter": "esbenp.prettier-vscode", // Set Prettier as the default formatter
+  "[javascript]": {
+      // Format JavaScript files on save
+      "editor.formatOnSave": true
+  },
+  "[typescript]": {
+      // Format TypeScript files on save
+      "editor.formatOnSave": true
+  },
+  "[json]": {
+      // Format JSON files on save
+      "editor.formatOnSave": true
+  },
+  "prettier.requireConfig": true // Only format if a Prettier config file is found (optional)
+}
