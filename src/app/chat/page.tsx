@@ -1,25 +1,19 @@
 'use client'
 
-import {
-    Box,
-    Paper,
-    TextField,
-    IconButton,
-    Typography,
-    Card,
-    Avatar,
-    Stack,
-} from '@mui/material'
+import { Box, Paper, TextField, IconButton, Typography } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
+import { ChatMessage } from './components/ChatMessage'
 
 interface Message {
     id: number
     text: string
     sender: 'user' | 'tucan'
+    userName?: string
     timestamp: Date
+    isMe?: boolean
 }
 
-// Temporary mock data
+// Updated mock data with multiple users
 const mockMessages: Message[] = [
     {
         id: 1,
@@ -31,17 +25,56 @@ const mockMessages: Message[] = [
         id: 2,
         text: '¡Hola Tucan!',
         sender: 'user',
+        userName: 'María',
+        isMe: false,
         timestamp: new Date(),
     },
     {
         id: 3,
-        text: '¡Dime que quieres!',
-        sender: 'tucan',
+        text: '¡Yo también quiero saludar!',
+        sender: 'user',
+        userName: 'Carlos',
+        isMe: true,
+        timestamp: new Date(),
+    },
+
+    {
+        id: 4,
+        text: '¡Bienvenidos amigos! 🌺',
+        sender: 'user',
+        userName: 'Carlos',
+        isMe: true,
+        timestamp: new Date(),
+    },
+    {
+        id: 5,
+        text: '¿Podemos aprender sobre las aves?',
+        sender: 'user',
+        userName: 'María',
+        isMe: false,
         timestamp: new Date(),
     },
 ]
 
 export default function ChatPage() {
+    // Function to determine if we should show the name
+    const shouldShowName = (
+        index: number,
+        message: Message,
+        prevMessage?: Message
+    ) => {
+        if (index === 0) return true
+        if (!prevMessage) return true
+        if (message.sender !== prevMessage.sender) return true
+        if (
+            message.sender === 'user' &&
+            message.userName !== prevMessage.userName
+        )
+            return true
+        if (message.isMe !== prevMessage.isMe) return true
+        return false
+    }
+
     return (
         <Box
             sx={{
@@ -77,67 +110,16 @@ export default function ChatPage() {
                     gap: 2,
                 }}
             >
-                {mockMessages.map((message) => (
-                    <Box
+                {mockMessages.map((message, index) => (
+                    <ChatMessage
                         key={message.id}
-                        sx={{
-                            display: 'flex',
-                            justifyContent:
-                                message.sender === 'user'
-                                    ? 'flex-end'
-                                    : 'flex-start',
-                            mb: 2,
-                        }}
-                    >
-                        <Stack
-                            direction="row"
-                            spacing={2}
-                            alignItems="flex-end"
-                            sx={{
-                                maxWidth: '70%',
-                            }}
-                        >
-                            {message.sender === 'tucan' && (
-                                <Avatar
-                                    sx={{
-                                        bgcolor: 'secondary.main',
-                                        width: 40,
-                                        height: 40,
-                                    }}
-                                >
-                                    🦜
-                                </Avatar>
-                            )}
-                            <Card
-                                sx={{
-                                    p: 2,
-                                    bgcolor:
-                                        message.sender === 'user'
-                                            ? 'primary.main'
-                                            : 'white',
-                                    color:
-                                        message.sender === 'user'
-                                            ? 'white'
-                                            : 'text.primary',
-                                    borderRadius: 3,
-                                    boxShadow: 2,
-                                }}
-                            >
-                                <Typography>{message.text}</Typography>
-                            </Card>
-                            {message.sender === 'user' && (
-                                <Avatar
-                                    sx={{
-                                        bgcolor: 'primary.main',
-                                        width: 40,
-                                        height: 40,
-                                    }}
-                                >
-                                    👤
-                                </Avatar>
-                            )}
-                        </Stack>
-                    </Box>
+                        {...message}
+                        showName={shouldShowName(
+                            index,
+                            message,
+                            mockMessages[index - 1]
+                        )}
+                    />
                 ))}
             </Box>
 
