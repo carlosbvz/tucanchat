@@ -1,12 +1,13 @@
 'use client'
 
-import { Button, Box, Paper, Typography, Stack } from '@mui/material'
+import { Box, Paper, Typography, Stack } from '@mui/material'
 import Grid from '@mui/material/Grid2'
 import { AddPatient } from '@/components/AddPatient'
 import { Patient } from '@/types/patient'
 import { useState } from 'react'
 import { getPatientFileById } from '@/actions/patientActions'
 import CsvGrid from '@/components/CsvGrid'
+import styles from './DataDisplay.module.css'
 
 type Props = {
     patients: Patient[]
@@ -25,6 +26,10 @@ export default function DataDisplay({ patients }: Readonly<Props>) {
     }
 
     const renderContent = () => {
+        if (patients.length === 0) {
+            return <Typography>No patients found. </Typography>
+        }
+
         if (!selectedPatient) {
             return <Typography>Select a patient to view their data</Typography>
         }
@@ -37,10 +42,10 @@ export default function DataDisplay({ patients }: Readonly<Props>) {
     }
 
     return (
-        <Box sx={{}}>
-            <Grid container>
+        <Box sx={{ height: '100vh' }}>
+            <Grid container sx={{ height: '100%' }}>
                 {/* Left Panel - Patients List */}
-                <Grid size={{ xs: 3 }} sx={{ height: '100vh' }}>
+                <Grid size={{ xs: 3 }}>
                     <Paper
                         elevation={2}
                         sx={{
@@ -49,35 +54,63 @@ export default function DataDisplay({ patients }: Readonly<Props>) {
                             display: 'flex',
                             flexDirection: 'column',
                             gap: 2,
+                            backgroundColor: '#f8f9fa',
                         }}
                     >
-                        <Typography variant="h6" gutterBottom>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                                color: '#2c3e50',
+                                borderBottom: '2px solid #e9ecef',
+                                pb: 1,
+                            }}
+                        >
                             Patients
                         </Typography>
                         <AddPatient />
-                        <Stack spacing={1} sx={{ mt: 2, overflow: 'auto' }}>
+                        <Stack
+                            spacing={1}
+                            sx={{
+                                mt: 2,
+                                overflow: 'auto',
+                                '&::-webkit-scrollbar': {
+                                    width: '8px',
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    backgroundColor: '#cbd5e1',
+                                    borderRadius: '4px',
+                                },
+                            }}
+                        >
                             {patients.map((patient) => (
-                                <Button
+                                <button
                                     key={patient.id}
-                                    variant={
+                                    className={`${styles.patientButton} ${
                                         selectedPatient === patient.id
-                                            ? 'outlined'
-                                            : 'text'
-                                    }
+                                            ? styles.selected
+                                            : ''
+                                    }`}
                                     onClick={() =>
                                         handlePatientClick(patient.id)
                                     }
-                                    fullWidth
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            handlePatientClick(patient.id)
+                                        }
+                                    }}
                                 >
                                     {patient.name}
-                                </Button>
+                                </button>
                             ))}
                         </Stack>
                     </Paper>
                 </Grid>
 
                 {/* Right Panel - CSV Data Display */}
-                <Grid size={{ xs: 9 }} sx={{ height: '100vh', p: 4 }}>
+                <Grid
+                    size={{ xs: 9 }}
+                    sx={{ height: '100%', p: 4, backgroundColor: '#ffffff' }}
+                >
                     {renderContent()}
                 </Grid>
             </Grid>

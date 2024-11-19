@@ -66,8 +66,21 @@ export async function addPatient(formData: FormData) {
 }
 
 export async function getPatients() {
-    const data = await fs.readFile(DB_PATH, 'utf8')
-    return JSON.parse(data)
+    try {
+        // Ensure the data directory exists
+        await fs.mkdir(path.join(process.cwd(), 'data'), { recursive: true })
+
+        try {
+            const data = await fs.readFile(DB_PATH, 'utf8')
+            return JSON.parse(data)
+        } catch (error: unknown) {
+            console.log('Error reading patients:', error)
+            return []
+        }
+    } catch (error) {
+        console.error('Error getting patients:', error)
+        return []
+    }
 }
 
 export async function getFiles() {
