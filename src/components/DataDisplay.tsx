@@ -19,6 +19,7 @@ import { useState } from 'react'
 import { getPatientFileById, deletePatient } from '@/actions/patientActions'
 import CsvGrid from '@/components/CsvGrid'
 import styles from './DataDisplay.module.css'
+import { runNormalization } from '@/actions/kabreActions'
 
 type Props = {
     patients: Patient[]
@@ -40,9 +41,11 @@ export default function DataDisplay({ patients }: Readonly<Props>) {
         setCsvData(data)
     }
 
-    const handleNormalizeData = () => {
-        // const normalizedData = normalizeData(csvData)
-        setNormalizedData(csvData)
+    const handleNormalizeData = async () => {
+        const result = await runNormalization()
+        if (result.success) {
+            setNormalizedData(csvData)
+        }
     }
 
     const handleAddPatient = (patient: Patient) => {
