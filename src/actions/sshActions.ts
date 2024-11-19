@@ -39,3 +39,40 @@ export async function executeRemoteCommand(command: string) {
         }
     }
 }
+
+export async function uploadFileToServer(
+    localFilePath: string,
+    remoteFilePath: string
+) {
+    const ssh = new NodeSSH()
+
+    try {
+        console.log('Uploading file to server')
+        // Connect to the remote server
+        await ssh.connect({
+            host: 'kabre.cenat.ac.cr',
+            username: 'curso-786',
+            port: 22022,
+            password: 'DtDak5sA',
+        })
+
+        // Upload the file
+        await ssh.putFile(localFilePath, remoteFilePath)
+
+        // Close the connection
+        ssh.dispose()
+
+        console.log('File uploaded successfully')
+
+        return {
+            success: true,
+            message: 'File uploaded successfully',
+        }
+    } catch (error) {
+        console.error('File upload error:', error)
+        return {
+            success: false,
+            error: 'Failed to upload file to remote server',
+        }
+    }
+}
