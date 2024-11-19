@@ -2,8 +2,7 @@
 
 import { Button, Modal, Box, Typography, TextField, Stack } from '@mui/material'
 import { useState } from 'react'
-
-import { addPatient } from '@/actions/addPatientAction'
+import { addPatient } from '@/actions/patientActions'
 
 export function AddPatient() {
     const [open, setOpen] = useState(false)
@@ -36,13 +35,14 @@ export function AddPatient() {
             const formData = new FormData(e.currentTarget)
             const result = await addPatient(formData)
 
+            console.log('Result:', result)
+
             if (result.success) {
                 setStatus({
                     success: true,
                     message: 'Patient added successfully!',
                 })
-                // Reset form
-                e.currentTarget.reset()
+
                 // Close modal after a short delay
                 setTimeout(() => {
                     handleClose()
