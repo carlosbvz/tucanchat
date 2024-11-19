@@ -3,8 +3,12 @@
 import { Button, Modal, Box, Typography, TextField, Stack } from '@mui/material'
 import { useState } from 'react'
 import { addPatient } from '@/actions/patientActions'
+import { Patient } from '@/types/patient'
+type AddPatientProps = {
+    onSuccess?: (patient: Patient) => void
+}
 
-export function AddPatient() {
+export function AddPatient({ onSuccess }: Readonly<AddPatientProps>) {
     const [open, setOpen] = useState(false)
     const [status, setStatus] = useState<{
         success?: boolean
@@ -41,6 +45,10 @@ export function AddPatient() {
                 setStatus({
                     success: true,
                     message: 'Patient added successfully!',
+                })
+                onSuccess?.({
+                    name: result?.patient?.name ?? '',
+                    id: result?.patient?.id ?? '',
                 })
 
                 // Close modal after a short delay

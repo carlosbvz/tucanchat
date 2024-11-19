@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Typography } from '@mui/material'
+import { Box } from '@mui/material'
 import { FixedSizeList } from 'react-window'
 
 type Props = {
@@ -45,10 +45,6 @@ export default function CsvGrid({ csvData }: Readonly<Props>) {
 
     return (
         <Box>
-            <Typography variant="h6" gutterBottom>
-                Patient&apos;s Data
-            </Typography>
-
             <div style={{ width: '100%' }}>
                 {/* Header */}
                 <div
