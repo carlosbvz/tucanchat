@@ -89,11 +89,33 @@ export async function getFiles() {
 }
 
 export async function deletePatient(id: string) {
-    const patients = await getPatients()
-    const filteredPatients = patients.filter(
-        (patient: Patient) => patient.id !== id
-    )
-    await fs.writeFile(DB_PATH, JSON.stringify(filteredPatients, null, 2))
+    try {
+        // Get patient info first to get the file path
+        const patients = await getPatients()
+        const patient = patients.find((p: Patient) => p.id === id)
+
+        // If patient has a file, delete it
+        if (patient?.filePath) {
+            const filePath = path.join(process.cwd(), 'data', patient.filePath)
+            try {
+                await fs.unlink(filePath)
+                console.log('Deleted patient file:', filePath)
+            } catch (error) {
+                console.error('Error deleting patient file:', error)
+            }
+        }
+
+        // Remove patient from database
+        const filteredPatients = patients.filter(
+            (patient: Patient) => patient.id !== id
+        )
+
+        await fs.writeFile(DB_PATH, JSON.stringify(filteredPatients, null, 2))
+        return { success: true }
+    } catch (error) {
+        console.error('Error deleting patient:', error)
+        return { success: false, error: 'Failed to delete patient' }
+    }
 }
 
 export async function getPatientFileById(id: string) {

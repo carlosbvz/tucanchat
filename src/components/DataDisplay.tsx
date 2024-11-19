@@ -11,12 +11,12 @@ import {
     AccordionDetails,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-
+import DeleteIcon from '@mui/icons-material/Delete'
 import Grid from '@mui/material/Grid2'
 import { AddPatient } from '@/components/AddPatient'
 import { Patient } from '@/types/patient'
 import { useState } from 'react'
-import { getPatientFileById } from '@/actions/patientActions'
+import { getPatientFileById, deletePatient } from '@/actions/patientActions'
 import CsvGrid from '@/components/CsvGrid'
 import styles from './DataDisplay.module.css'
 
@@ -29,6 +29,7 @@ type CSVData = Record<string, string | undefined>[]
 export default function DataDisplay({ patients }: Readonly<Props>) {
     const [selectedPatient, setSelectedPatient] = useState<string | null>(null)
     const [csvData, setCsvData] = useState<CSVData | null>(null)
+    const [normalizedData, setNormalizedData] = useState<CSVData | null>(null)
 
     const [localPatients, setLocalPatients] = useState<Patient[]>(patients)
 
@@ -39,8 +40,24 @@ export default function DataDisplay({ patients }: Readonly<Props>) {
         setCsvData(data)
     }
 
+    const handleNormalizeData = () => {
+        // const normalizedData = normalizeData(csvData)
+        setNormalizedData(csvData)
+    }
+
     const handleAddPatient = (patient: Patient) => {
         setLocalPatients([...localPatients, patient])
+    }
+
+    const handleDeletePatient = async (patientId: string) => {
+        const result = await deletePatient(patientId)
+        if (result.success) {
+            setLocalPatients(localPatients.filter((p) => p.id !== patientId))
+        }
+        setSelectedPatient(null)
+        setCsvData(null)
+        setNormalizedData(null)
+        setLocalPatients(localPatients.filter((p) => p.id !== patientId))
     }
 
     const renderContent = () => {
@@ -52,9 +69,9 @@ export default function DataDisplay({ patients }: Readonly<Props>) {
             return <Typography>Select a patient to view their data</Typography>
         }
 
-        if (!csvData) {
-            return <Typography>Loading data...</Typography>
-        }
+        // if (!csvData) {
+        //     return <Typography>Loading data...</Typography>
+        // }
 
         return (
             <>
@@ -64,28 +81,56 @@ export default function DataDisplay({ patients }: Readonly<Props>) {
                         backgroundColor: '#f8f9fa',
                         display: 'flex',
                         justifyContent: 'flex-end',
+                        gap: 2,
                     }}
                 >
-                    <Button variant="contained" color="primary">
-                        Normalize Data
+                    {csvData && (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleNormalizeData}
+                        >
+                            Normalize Data
+                        </Button>
+                    )}
+                    {/* Add a delete patient button */}
+                    <Button
+                        variant="contained"
+                        color="error"
+                        startIcon={<DeleteIcon />}
+                        onClick={() => handleDeletePatient(selectedPatient)}
+                    >
+                        Delete Patient
                     </Button>
                 </Box>
-                <Accordion defaultExpanded>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography>Raw Data</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <CsvGrid csvData={csvData} />
-                    </AccordionDetails>
-                </Accordion>
-                <Accordion>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                        <Typography>Normalized Data</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <CsvGrid csvData={csvData} />
-                    </AccordionDetails>
-                </Accordion>
+
+                {csvData ? (
+                    <>
+                        <Accordion defaultExpanded>
+                            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                <Typography>Raw Data</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <CsvGrid csvData={csvData} />
+                            </AccordionDetails>
+                        </Accordion>
+
+                        {normalizedData && (
+                            <Accordion>
+                                <AccordionSummary
+                                    expandIcon={<ExpandMoreIcon />}
+                                >
+                                    <Typography>Normalized Data</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <CsvGrid csvData={csvData} />
+                                </AccordionDetails>
+                            </Accordion>
+                        )}
+                    </>
+                ) : (
+                    <Typography>Loading data...</Typography>
+                )}
             </>
         )
     }
