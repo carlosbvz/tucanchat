@@ -1,8 +1,11 @@
 'use client'
 
-import { defaultTheme } from '@/utils/themes/default-theme'
+import dxaTheme from '@/utils/themes/dxa-theme'
 import { ThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
+import { Box } from '@mui/material'
+import { Header } from '@/components/layout/Header'
+import { Footer } from '@/components/layout/Footer'
 import localFont from 'next/font/local'
 
 const geistSans = localFont({
@@ -24,9 +27,21 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable}`}>
-                <ThemeProvider theme={defaultTheme}>
+                <ThemeProvider theme={dxaTheme}>
                     <CssBaseline />
-                    {children}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            minHeight: '100vh',
+                        }}
+                    >
+                        <Header />
+                        <Box component="main" sx={{ flexGrow: 1, py: 3 }}>
+                            {children}
+                        </Box>
+                        <Footer />
+                    </Box>
                 </ThemeProvider>
             </body>
         </html>

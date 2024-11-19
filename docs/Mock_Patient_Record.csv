@@ -1,0 +1,16 @@
+Category,Metric,Value
+Patient Info,Patient ID,001
+Patient Info,Age,68
+Patient Info,Gender,Female
+DXA Data,Hip BMD,0.85 g/cm²
+DXA Data,Spine BMD,0.90 g/cm²
+DXA Data,Femur BMD,0.82 g/cm²
+Body Composition,Lean Mass,40 kg
+Body Composition,Fat Mass,25%
+Body Composition,Bone Mass,2.5 kg
+SFT Data,Chair Stand Test,12 stands
+SFT Data,8-Foot Up-and-Go,6.5 seconds
+SFT Data,Arm Curl Test,15 curls
+SFT Data,6-Minute Walk Test,500 meters
+SFT Data,Chair Sit-and-Reach Test,-3 cm
+SFT Data,Back Scratch Test,2 cm gap
