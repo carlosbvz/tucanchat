@@ -16,11 +16,9 @@ import Grid from '@mui/material/Grid2'
 import { AddPatient } from '@/components/AddPatient'
 import { Patient } from '@/types/patient'
 import { useState } from 'react'
-import {
-    getPatientFileById,
-    deletePatient,
-    normalizePatientData,
-} from '@/actions/patientActions'
+import { getPatientFileById, deletePatient } from '@/actions/patientActions'
+import { normalizePatientData } from '@/actions/normalizeActions'
+
 import CsvGrid from '@/components/CsvGrid'
 import styles from './DataDisplay.module.css'
 

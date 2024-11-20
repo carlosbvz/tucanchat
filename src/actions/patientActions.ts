@@ -3,7 +3,6 @@
 import { Patient } from '@/types/patient'
 import fs from 'fs/promises'
 import path from 'path'
-import { Worker } from 'worker_threads'
 
 const DB_PATH = path.join(process.cwd(), 'data', 'patients.json')
 const FILES_PATH = path.join(process.cwd(), 'data', 'files')
@@ -155,51 +154,70 @@ export async function getPatientFileById(id: string) {
 }
 
 export async function normalizePatientData(patientId: string) {
-    const filePath = path.join(
-        process.cwd(),
-        'data',
-        'files',
-        `${patientId}.csv`
-    )
-    const fileContent = await fs.readFile(filePath, 'utf8')
+    try {
+        console.log('patientId', patientId)
+        const filePath = path.join(
+            process.cwd(),
+            'data',
+            'files',
+            `${patientId}.csv`
+        )
+        const fileContent = await fs.readFile(filePath, 'utf8')
 
-    const rows = fileContent.split('\n')
-    const headers = rows[0].split(',')
-    const data = rows.slice(1).map((row) => row.split(',').map(parseFloat))
+        const rows = fileContent.split('\n')
+        const headers = rows[0].split(',')
+        const data = rows.slice(1).map((row) => row.split(',').map(parseFloat))
 
-    const promises = data[0].map((_, colIndex) => {
-        const columnData = data.map((row) => row[colIndex])
-
-        return new Promise((resolve, reject) => {
-            const workerPath = path.resolve(__dirname, 'normalizeWorker.js')
-            console.log('workerPath', workerPath)
-            const worker = new Worker(workerPath, {
-                workerData: columnData,
-            })
-            worker.on('message', resolve)
-            worker.on('error', reject)
-            worker.on('exit', (code) => {
-                if (code !== 0)
-                    reject(new Error(`Worker stopped with exit code ${code}`))
-            })
+        const promises = data[0].map((_, colIndex) => {
+            const columnData = data.map((row) => row[colIndex])
+            return standardizeData(columnData)
         })
+
+        console.log('promises loaded')
+        const standardizedData = (await Promise.all(promises)) as number[][]
+
+        console.log('Running normalization')
+        const normalizedData = data.map((_, rowIndex) => {
+            return standardizedData.map((column) => column[rowIndex])
+        })
+
+        // Ensure the normalized directory exists
+        const normalizedDir = path.join(process.cwd(), 'normalized')
+        await fs.mkdir(normalizedDir, { recursive: true })
+
+        const normalizedFilePath = path.join(
+            normalizedDir,
+            `${patientId}_normalized.csv`
+        )
+        const normalizedContent = [headers.join(',')]
+            .concat(normalizedData.map((row) => row.join(',')))
+            .join('\n')
+        await fs.writeFile(normalizedFilePath, normalizedContent)
+
+        return { success: true, data: normalizedData }
+    } catch (error) {
+        console.error('Error normalizing patient data:', error)
+        return { success: false, error: 'Failed to normalize patient data' }
+    }
+}
+
+function calculateMean(data: number[]) {
+    const sum = data.reduce((acc, val) => acc + val, 0)
+    return sum / data.length
+}
+
+function calculateStd(data: number[], mean: number) {
+    const sum = data.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0)
+    return Math.sqrt(sum / data.length)
+}
+
+function standardizeData(data: number[]) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const mean = calculateMean(data)
+            const std = calculateStd(data, mean)
+            const standardizedData = data.map((value) => (value - mean) / std)
+            resolve(standardizedData)
+        }, 0)
     })
-
-    const standardizedData = await Promise.all(promises)
-
-    const normalizedData = data.map((_, rowIndex) => {
-        return standardizedData.map((column) => (column as number[])[rowIndex])
-    })
-
-    const normalizedFilePath = path.join(
-        process.cwd(),
-        'normalized',
-        `${patientId}_normalized.csv`
-    )
-    const normalizedContent = [headers.join(',')]
-        .concat(normalizedData.map((row) => row.join(',')))
-        .join('\n')
-    await fs.writeFile(normalizedFilePath, normalizedContent)
-
-    return { success: true, data: normalizedData }
 }
