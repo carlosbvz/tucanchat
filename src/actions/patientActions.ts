@@ -3,6 +3,7 @@
 import { Patient } from '@/types/patient'
 import fs from 'fs/promises'
 import path from 'path'
+import { Worker } from 'worker_threads'
 
 const DB_PATH = path.join(process.cwd(), 'data', 'patients.json')
 const FILES_PATH = path.join(process.cwd(), 'data', 'files')
@@ -151,4 +152,54 @@ export async function getPatientFileById(id: string) {
         console.error('Error reading patient file:', error)
         return null
     }
+}
+
+export async function normalizePatientData(patientId: string) {
+    const filePath = path.join(
+        process.cwd(),
+        'data',
+        'files',
+        `${patientId}.csv`
+    )
+    const fileContent = await fs.readFile(filePath, 'utf8')
+
+    const rows = fileContent.split('\n')
+    const headers = rows[0].split(',')
+    const data = rows.slice(1).map((row) => row.split(',').map(parseFloat))
+
+    const promises = data[0].map((_, colIndex) => {
+        const columnData = data.map((row) => row[colIndex])
+
+        return new Promise((resolve, reject) => {
+            const workerPath = path.resolve(__dirname, 'normalizeWorker.js')
+            console.log('workerPath', workerPath)
+            const worker = new Worker(workerPath, {
+                workerData: columnData,
+            })
+            worker.on('message', resolve)
+            worker.on('error', reject)
+            worker.on('exit', (code) => {
+                if (code !== 0)
+                    reject(new Error(`Worker stopped with exit code ${code}`))
+            })
+        })
+    })
+
+    const standardizedData = await Promise.all(promises)
+
+    const normalizedData = data.map((_, rowIndex) => {
+        return standardizedData.map((column) => (column as number[])[rowIndex])
+    })
+
+    const normalizedFilePath = path.join(
+        process.cwd(),
+        'normalized',
+        `${patientId}_normalized.csv`
+    )
+    const normalizedContent = [headers.join(',')]
+        .concat(normalizedData.map((row) => row.join(',')))
+        .join('\n')
+    await fs.writeFile(normalizedFilePath, normalizedContent)
+
+    return { success: true, data: normalizedData }
 }
