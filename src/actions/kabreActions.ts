@@ -1,14 +1,14 @@
 'use server'
 
 import { executeRemoteCommand, uploadFileToServer } from './sshActions'
-import { getPatients } from './patientActions'
+import { getDatasets } from './datasetActions'
 import path from 'path'
-import { Patient } from '@/types/patient'
+import { Dataset } from '@/types/dataset'
 import fs from 'fs'
 
-export async function runNormalization(patientId: string) {
+export async function runNormalization(datasetId: string) {
     try {
-        console.log('Running normalization for patient ID:', patientId)
+        console.log('Running normalization for dataset ID:', datasetId)
         // First, change directory
         const cdCommand =
             'cd class-examples/PP_UCR/OpenMP/example2_parallel_for'
@@ -47,22 +47,22 @@ export async function runNormalization(patientId: string) {
     }
 }
 
-export async function copyPatientCSVToServer(patientId: string) {
+export async function copyDatasetCSVToServer(datasetId: string) {
     try {
-        console.log('Copying patient CSV to server for ID:', patientId)
+        console.log('Copying dataset CSV to server for ID:', datasetId)
 
-        // Get the patient data to retrieve the file path
-        const patients = await getPatients()
-        const patient = patients.find((p: Patient) => p.id === patientId)
+        // Get the dataset data to retrieve the file path
+        const datasets = await getDatasets()
+        const dataset = datasets.find((p: Dataset) => p.id === datasetId)
 
-        if (!patient || !patient.filePath) {
+        if (!dataset?.filePath) {
             return {
                 success: false,
-                error: `CSV file for patient ID ${patientId} not found`,
+                error: `CSV file for dataset ID ${datasetId} not found`,
             }
         }
 
-        const localFilePath = path.join(process.cwd(), 'data', patient.filePath)
+        const localFilePath = path.join(process.cwd(), 'data', dataset.filePath)
 
         // Check if the file exists locally
         if (!fs.existsSync(localFilePath)) {
@@ -93,7 +93,7 @@ export async function copyPatientCSVToServer(patientId: string) {
 
         return {
             success: true,
-            message: `CSV file for patient ID ${patientId} successfully uploaded`,
+            message: `CSV file for dataset ID ${datasetId} successfully uploaded`,
         }
     } catch (error) {
         console.error('Error copying CSV file to server:', error)

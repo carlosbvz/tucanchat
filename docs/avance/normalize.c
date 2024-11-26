@@ -126,7 +126,7 @@ int main() {
   Data *data_array = NULL; // Initialize data_array to NULL
   int count = 0;
 
-  read_csv("data.csv", &data_array, &count);
+  read_csv("data/data.csv", &data_array, &count);
 
   // Allocate memory for the arrays based on the count
   float *ages = (float *)malloc(count * sizeof(float));

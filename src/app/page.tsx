@@ -1,12 +1,12 @@
-import { getPatients } from '@/actions/patientActions'
+import { getDatasets } from '@/actions/datasetActions'
 import DataDisplay from '@/components/DataDisplay'
 
 export default async function Home() {
-    const patients = await getPatients()
+    const datasets = await getDatasets()
 
     return (
         <div>
-            <DataDisplay patients={patients} />
+            <DataDisplay datasets={datasets} />
         </div>
     )
 }

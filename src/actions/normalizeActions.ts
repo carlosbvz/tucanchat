@@ -3,7 +3,7 @@
 import fs from 'fs/promises'
 import path from 'path'
 import * as math from 'mathjs'
-import { getPatientFileById } from '@/actions/patientActions'
+import { getDatasetFileById } from '@/actions/datasetActions'
 
 type Data = {
     id: number
@@ -48,10 +48,10 @@ async function parseLine(line: string): Promise<Data> {
     }
 }
 
-async function readCSV(patientId: string): Promise<Data[]> {
-    const filePath = await getPatientFileById(patientId)
+async function readCSV(datasetId: string): Promise<Data[]> {
+    const filePath = await getDatasetFileById(datasetId)
     if (!filePath || typeof filePath !== 'string') {
-        throw new Error('Invalid file path returned for patient ID')
+        throw new Error('Invalid file path returned for dataset ID')
     }
     const data = await fs.readFile(filePath, 'utf8')
     const lines = data.trim().split('\n')
@@ -74,7 +74,7 @@ function standardizeArray(data: number[]): number[] {
 }
 
 async function writeNormalizedData(
-    patientId: string,
+    datasetId: string,
     dataArray: Data[]
 ): Promise<void> {
     const header =
@@ -89,17 +89,17 @@ async function writeNormalizedData(
         process.cwd(),
         'data',
         'normalize',
-        `${patientId}.csv`
+        `${datasetId}.csv`
     )
     await fs.writeFile(filePath, header + dataLines)
 }
 
-export async function normalizePatientData(
-    patientId: string
+export async function normalizeDataset(
+    datasetId: string
 ): Promise<{ success: boolean; error?: string }> {
     try {
         console.log('normalize')
-        const dataArray = await readCSV(patientId)
+        const dataArray = await readCSV(datasetId)
 
         const fields: (keyof Data)[] = [
             'age',
@@ -121,17 +121,17 @@ export async function normalizePatientData(
 
         console.log('dataArray', fields)
         fields.forEach((field) => {
-            const values = dataArray.map((data) => data[field] as number)
+            const values = dataArray.map((data) => data[field])
             const standardizedValues = standardizeArray(values)
             standardizedValues.forEach((value, index) => {
                 dataArray[index][field] = value
             })
         })
 
-        await writeNormalizedData(patientId, dataArray)
+        await writeNormalizedData(datasetId, dataArray)
         return { success: true }
     } catch (error) {
-        console.error('Error normalizing patient data:', error)
-        return { success: false, error: 'Failed to normalize patient data' }
+        console.error('Error normalizing dataset:', error)
+        return { success: false, error: 'Failed to normalize dataset' }
     }
 }

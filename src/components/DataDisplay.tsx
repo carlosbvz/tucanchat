@@ -13,67 +13,66 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Grid from '@mui/material/Grid2'
-import { AddPatient } from '@/components/AddPatient'
-import { Patient } from '@/types/patient'
+import { AddDataset } from '@/components/AddDataset'
+import { Dataset } from '@/types/dataset'
 import { useState } from 'react'
-import { getPatientFileById, deletePatient } from '@/actions/patientActions'
-import { normalizePatientData } from '@/actions/normalizeActions'
+import { getDatasetFileById, deleteDataset } from '@/actions/datasetActions'
+import { runNormalization } from '@/actions/kabreActions'
 
 import CsvGrid from '@/components/CsvGrid'
 import styles from './DataDisplay.module.css'
 
 type Props = {
-    patients: Patient[]
+    datasets: Dataset[]
 }
 
 type CSVData = Record<string, string | undefined>[]
 
-export default function DataDisplay({ patients }: Readonly<Props>) {
-    const [selectedPatient, setSelectedPatient] = useState<string | null>(null)
+export default function DataDisplay({ datasets }: Readonly<Props>) {
+    const [selectedDataset, setSelectedDataset] = useState<string | null>(null)
     const [csvData, setCsvData] = useState<CSVData | null>(null)
     const [normalizedData, setNormalizedData] = useState<CSVData | null>(null)
 
-    const [localPatients, setLocalPatients] = useState<Patient[]>(patients)
+    const [localDatasets, setLocalDatasets] = useState<Dataset[]>(datasets)
 
-    const handlePatientClick = async (patientId: string) => {
-        setSelectedPatient(patientId)
-        const data = await getPatientFileById(patientId)
-        console.log('data', data)
+    const handleDatasetClick = async (datasetId: string) => {
+        setSelectedDataset(datasetId)
+        const data = await getDatasetFileById(datasetId)
         setCsvData(data)
     }
 
     const handleNormalizeData = async () => {
-        if (!selectedPatient) {
+        if (!selectedDataset) {
             return
         }
-        const result = await normalizePatientData(selectedPatient)
+        const result = await runNormalization(selectedDataset)
         if (result.success) {
             setNormalizedData(csvData)
         }
     }
 
-    const handleAddPatient = (patient: Patient) => {
-        setLocalPatients([...localPatients, patient])
+    const handleAddDataset = (dataset: Dataset) => {
+        setLocalDatasets([...localDatasets, dataset])
     }
 
-    const handleDeletePatient = async (patientId: string) => {
-        const result = await deletePatient(patientId)
+    const handleDeleteDataset = async (datasetId: string) => {
+        const result = await deleteDataset(datasetId)
         if (result.success) {
-            setLocalPatients(localPatients.filter((p) => p.id !== patientId))
+            setLocalDatasets(localDatasets.filter((p) => p.id !== datasetId))
         }
-        setSelectedPatient(null)
+        setSelectedDataset(null)
         setCsvData(null)
         setNormalizedData(null)
-        setLocalPatients(localPatients.filter((p) => p.id !== patientId))
+        setLocalDatasets(localDatasets.filter((p) => p.id !== datasetId))
     }
 
     const renderContent = () => {
-        if (localPatients.length === 0) {
-            return <Typography>No patients found. </Typography>
+        if (localDatasets.length === 0) {
+            return <Typography>No datasets found. </Typography>
         }
 
-        if (!selectedPatient) {
-            return <Typography>Select a patient to view their data</Typography>
+        if (!selectedDataset) {
+            return <Typography>Select a dataset to view their data</Typography>
         }
 
         // if (!csvData) {
@@ -100,14 +99,14 @@ export default function DataDisplay({ patients }: Readonly<Props>) {
                             Normalize Data
                         </Button>
                     )}
-                    {/* Add a delete patient button */}
+                    {/* Add a delete dataset button */}
                     <Button
                         variant="contained"
                         color="error"
                         startIcon={<DeleteIcon />}
-                        onClick={() => handleDeletePatient(selectedPatient)}
+                        onClick={() => handleDeleteDataset(selectedDataset)}
                     >
-                        Delete Patient
+                        Delete Dataset
                     </Button>
                 </Box>
 
@@ -145,7 +144,7 @@ export default function DataDisplay({ patients }: Readonly<Props>) {
     return (
         <Box>
             <Grid container sx={{ minHeight: 'calc(100vh - 150px)' }}>
-                {/* Left Panel - Patients List */}
+                {/* Left Panel - Datasets List */}
                 <Grid size={{ xs: 3 }}>
                     <Paper
                         elevation={2}
@@ -166,9 +165,9 @@ export default function DataDisplay({ patients }: Readonly<Props>) {
                                 pb: 1,
                             }}
                         >
-                            Patients
+                            Datasets
                         </Typography>
-                        <AddPatient onSuccess={handleAddPatient} />
+                        <AddDataset onSuccess={handleAddDataset} />
                         <Stack
                             spacing={1}
                             sx={{
@@ -183,24 +182,24 @@ export default function DataDisplay({ patients }: Readonly<Props>) {
                                 },
                             }}
                         >
-                            {localPatients.map((patient) => (
+                            {localDatasets.map((dataset) => (
                                 <button
-                                    key={patient.id}
-                                    className={`${styles.patientButton} ${
-                                        selectedPatient === patient.id
+                                    key={dataset.id}
+                                    className={`${styles.datasetButton} ${
+                                        selectedDataset === dataset.id
                                             ? styles.selected
                                             : ''
                                     }`}
                                     onClick={() =>
-                                        handlePatientClick(patient.id)
+                                        handleDatasetClick(dataset.id)
                                     }
                                     onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
-                                            handlePatientClick(patient.id)
+                                            handleDatasetClick(dataset.id)
                                         }
                                     }}
                                 >
-                                    {patient.name}
+                                    {dataset.name}
                                 </button>
                             ))}
                         </Stack>

@@ -1,4 +1,4 @@
-.patientButton {
+.datasetButton {
     padding: 12px 16px;
     background-color: white;
     cursor: pointer;
@@ -8,13 +8,13 @@
     border: none;
 }
 
-.patientButton:hover {
+.datasetButton:hover {
     background-color: #f7fafc;
 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.patientButton.selected {
+.datasetButton.selected {
     background-color: #e8f4ff;
     color: #2b6cb0;
     font-weight: 500;
