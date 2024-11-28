@@ -17,8 +17,8 @@ import { AddDataset } from '@/components/AddDataset'
 import { Dataset } from '@/types/dataset'
 import { useState } from 'react'
 import { getDatasetFileById, deleteDataset } from '@/actions/datasetActions'
-import { runNormalization } from '@/actions/kabreActions'
-
+import { normalizeDataset } from '@/actions/normalizeActions'
+import { copyDatasetCSVToServer } from '@/actions/kabreActions'
 import CsvGrid from '@/components/CsvGrid'
 import styles from './DataDisplay.module.css'
 
@@ -29,23 +29,25 @@ type Props = {
 type CSVData = Record<string, string | undefined>[]
 
 export default function DataDisplay({ datasets }: Readonly<Props>) {
-    const [selectedDataset, setSelectedDataset] = useState<string | null>(null)
+    const [selectedDatasetId, setSelectedDatasetId] = useState<string | null>(
+        null
+    )
     const [csvData, setCsvData] = useState<CSVData | null>(null)
     const [normalizedData, setNormalizedData] = useState<CSVData | null>(null)
 
     const [localDatasets, setLocalDatasets] = useState<Dataset[]>(datasets)
 
     const handleDatasetClick = async (datasetId: string) => {
-        setSelectedDataset(datasetId)
+        setSelectedDatasetId(datasetId)
         const data = await getDatasetFileById(datasetId)
         setCsvData(data)
     }
 
     const handleNormalizeData = async () => {
-        if (!selectedDataset) {
+        if (!selectedDatasetId) {
             return
         }
-        const result = await runNormalization(selectedDataset)
+        const result = await normalizeDataset(selectedDatasetId)
         if (result.success) {
             setNormalizedData(csvData)
         }
@@ -60,10 +62,20 @@ export default function DataDisplay({ datasets }: Readonly<Props>) {
         if (result.success) {
             setLocalDatasets(localDatasets.filter((p) => p.id !== datasetId))
         }
-        setSelectedDataset(null)
+        setSelectedDatasetId(null)
         setCsvData(null)
         setNormalizedData(null)
         setLocalDatasets(localDatasets.filter((p) => p.id !== datasetId))
+    }
+
+    const handleOnUpload = async () => {
+        if (!selectedDatasetId) {
+            return
+        }
+        const response = await copyDatasetCSVToServer(selectedDatasetId)
+        if (response.success) {
+            console.log('Uploaded to server')
+        }
     }
 
     const renderContent = () => {
@@ -71,7 +83,7 @@ export default function DataDisplay({ datasets }: Readonly<Props>) {
             return <Typography>No datasets found. </Typography>
         }
 
-        if (!selectedDataset) {
+        if (!selectedDatasetId) {
             return <Typography>Select a dataset to view their data</Typography>
         }
 
@@ -91,20 +103,29 @@ export default function DataDisplay({ datasets }: Readonly<Props>) {
                     }}
                 >
                     {csvData && (
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleNormalizeData}
-                        >
-                            Normalize Data
-                        </Button>
+                        <>
+                            <Button
+                                variant="contained"
+                                color="secondary"
+                                onClick={handleOnUpload}
+                            >
+                                Upload
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleNormalizeData}
+                            >
+                                Normalize Data
+                            </Button>
+                        </>
                     )}
                     {/* Add a delete dataset button */}
                     <Button
                         variant="contained"
                         color="error"
                         startIcon={<DeleteIcon />}
-                        onClick={() => handleDeleteDataset(selectedDataset)}
+                        onClick={() => handleDeleteDataset(selectedDatasetId)}
                     >
                         Delete Dataset
                     </Button>
@@ -186,7 +207,7 @@ export default function DataDisplay({ datasets }: Readonly<Props>) {
                                 <button
                                     key={dataset.id}
                                     className={`${styles.datasetButton} ${
-                                        selectedDataset === dataset.id
+                                        selectedDatasetId === dataset.id
                                             ? styles.selected
                                             : ''
                                     }`}

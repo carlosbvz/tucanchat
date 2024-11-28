@@ -1,6 +1,8 @@
 'use server'
 
-import { executeRemoteCommand, uploadFileToServer } from './sshActions'
+// TODO: Implement uploadFileToServer
+// scp -P 22022  /Users/carlosbvz/Documents/Apps/tucanchat/data/files/1732634636404.csv curso-786@kabre.cenat.ac.cr:projecto/raw
+import { executeRemoteCommand } from './sshActions'
 import { getDatasets } from './datasetActions'
 import path from 'path'
 import { Dataset } from '@/types/dataset'
@@ -72,24 +74,26 @@ export async function copyDatasetCSVToServer(datasetId: string) {
             }
         }
 
-        // Define the remote directory path
-        const remoteDirectory = 'projecto/raw'
+        console.log('localFilePath', localFilePath)
 
-        console.log('Local file path:', localFilePath)
-        console.log('Uploading file to server')
+        // // Define the remote directory path
+        // const remoteDirectory = 'projecto/raw'
 
-        // Upload the file to the remote server
-        const uploadResult = await uploadFileToServer(
-            localFilePath,
-            remoteDirectory
-        )
-        if (!uploadResult.success) {
-            console.error('File upload error:', uploadResult.error)
-            return {
-                success: false,
-                error: `Failed to upload CSV file: ${uploadResult.error}`,
-            }
-        }
+        // console.log('Local file path:', localFilePath)
+        // console.log('Uploading file to server')
+
+        // // Upload the file to the remote server
+        // const uploadResult = await uploadFileToServer(
+        //     localFilePath,
+        //     remoteDirectory
+        // )
+        // if (!uploadResult.success) {
+        //     console.error('File upload error:', uploadResult.error)
+        //     return {
+        //         success: false,
+        //         error: `Failed to upload CSV file: ${uploadResult.error}`,
+        //     }
+        // }
 
         return {
             success: true,

@@ -50,6 +50,7 @@ async function parseLine(line: string): Promise<Data> {
 
 async function readCSV(datasetId: string): Promise<Data[]> {
     const filePath = await getDatasetFileById(datasetId)
+
     if (!filePath || typeof filePath !== 'string') {
         throw new Error('Invalid file path returned for dataset ID')
     }
@@ -99,7 +100,33 @@ export async function normalizeDataset(
 ): Promise<{ success: boolean; error?: string }> {
     try {
         console.log('normalize')
-        const dataArray = await readCSV(datasetId)
+        /** 
+         * dataArray is an array of objects, each object represents a row in the CSV file
+         * example of a record:
+         *  {
+                id: '100',
+                Gender: '0',
+                Age: '58',
+                Height: '169.77299645650027',
+                Weight: '56.35767869392631',
+                Chair_stand: '21',
+                Arm_curl: '15',
+                Six_min_walk: '526.5523468004247',
+                Steps: '111',
+                Trunk_flex: '14.542080751986948',
+                Back_scratch: '8.266610493887946',
+                TUG: '10.868178317128937',
+                Handgrip1: '31.297422561440452',
+                VO2_ml: '1892.090048250685',
+                VO2peak: '21.110298585356816',
+                DXA: '32.203921888940314',
+                BMD: '1.2543524473743402',
+                Ost: '1'
+            }
+        */
+        const dataArray = await await getDatasetFileById(datasetId)
+
+        console.log('dataArray', dataArray?.length)
 
         const fields: (keyof Data)[] = [
             'age',
@@ -119,16 +146,17 @@ export async function normalizeDataset(
             'BMD',
         ]
 
-        console.log('dataArray', fields)
+        // console.log('dataArray', fields)
         fields.forEach((field) => {
-            const values = dataArray.map((data) => data[field])
-            const standardizedValues = standardizeArray(values)
-            standardizedValues.forEach((value, index) => {
-                dataArray[index][field] = value
-            })
+            const values = dataArray?.map((data) => data[field])
+            console.log('values', values)
+            // const standardizedValues = standardizeArray(values)
+            // standardizedValues.forEach((value, index) => {
+            //     dataArray[index][field] = value
+            // })
         })
 
-        await writeNormalizedData(datasetId, dataArray)
+        // await writeNormalizedData(datasetId, dataArray)
         return { success: true }
     } catch (error) {
         console.error('Error normalizing dataset:', error)
