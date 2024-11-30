@@ -17,8 +17,10 @@ import { AddDataset } from '@/components/AddDataset'
 import { Dataset } from '@/types/dataset'
 import { useState } from 'react'
 import { getDatasetFileById, deleteDataset } from '@/actions/datasetActions'
-import { normalizeDataset } from '@/actions/normalizeActions'
-import { copyDatasetCSVToServer } from '@/actions/kabreActions'
+import {
+    copyDatasetCSVToServer,
+    runNormalization,
+} from '@/actions/kabreActions'
 import CsvGrid from '@/components/CsvGrid'
 import styles from './DataDisplay.module.css'
 
@@ -47,7 +49,7 @@ export default function DataDisplay({ datasets }: Readonly<Props>) {
         if (!selectedDatasetId) {
             return
         }
-        const result = await normalizeDataset(selectedDatasetId)
+        const result = await runNormalization(selectedDatasetId)
         if (result.success) {
             setNormalizedData(csvData)
         }

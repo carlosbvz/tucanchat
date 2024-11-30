@@ -47,7 +47,10 @@ export async function uploadFileToServer(
     const ssh = new NodeSSH()
 
     try {
-        console.log('Uploading file to server')
+        console.log(
+            `Uploading file: ${localFilePath} to server ${remoteFilePath}`
+        )
+
         // Connect to the remote server
         await ssh.connect({
             host: 'kabre.cenat.ac.cr',
