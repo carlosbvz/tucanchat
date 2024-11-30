@@ -101,7 +101,8 @@ float euclidean_distance(Data a, Data b)
               pow(a.VO2_ml - b.VO2_ml, 2) +
               pow(a.VO2peak - b.VO2peak, 2) +
               pow(a.DXA - b.DXA, 2) +
-              pow(a.BMD - b.BMD, 2));
+              pow(a.BMD - b.BMD, 2) +
+              (a.gender != b.gender ? 1 : 0));
 }
 
 // Function to perform KNN classification
@@ -118,22 +119,27 @@ int knn_predict(Data *data_array, int count, Data new_data)
     labels[i] = data_array[i].Ost; // Store the label
   }
 
-  // Sort distances and get the labels of the K nearest neighbors
-  for (int i = 0; i < count - 1; i++)
+// Sort distances and get the labels of the K nearest neighbors
+// Parallelize the sorting using OpenMP
+#pragma omp parallel
   {
-    for (int j = 0; j < count - i - 1; j++)
+    for (int i = 0; i < count - 1; i++)
     {
-      if (distances[j] > distances[j + 1])
+#pragma omp for
+      for (int j = 0; j < count - i - 1; j++)
       {
-        // Swap distances
-        float temp_dist = distances[j];
-        distances[j] = distances[j + 1];
-        distances[j + 1] = temp_dist;
+        if (distances[j] > distances[j + 1])
+        {
+          // Swap distances
+          float temp_dist = distances[j];
+          distances[j] = distances[j + 1];
+          distances[j + 1] = temp_dist;
 
-        // Swap labels
-        int temp_label = labels[j];
-        labels[j] = labels[j + 1];
-        labels[j + 1] = temp_label;
+          // Swap labels
+          int temp_label = labels[j];
+          labels[j] = labels[j + 1];
+          labels[j + 1] = temp_label;
+        }
       }
     }
   }
@@ -142,15 +148,29 @@ int knn_predict(Data *data_array, int count, Data new_data)
   int count_ost = 0;
   int count_non_ost = 0;
 
-  for (int i = 0; i < K; i++)
+#pragma omp parallel
   {
-    if (labels[i] == 1)
+    int local_count_ost = 0;     // Local count for ost votes
+    int local_count_non_ost = 0; // Local count for non-ost votes
+
+#pragma omp for
+    for (int i = 0; i < K; i++)
     {
-      count_ost++;
+      if (labels[i] == 1)
+      {
+        local_count_ost++;
+      }
+      else
+      {
+        local_count_non_ost++;
+      }
     }
-    else
+
+// Update the global counts in a critical section
+#pragma omp critical
     {
-      count_non_ost++;
+      count_ost += local_count_ost;
+      count_non_ost += local_count_non_ost;
     }
   }
 
@@ -158,10 +178,30 @@ int knn_predict(Data *data_array, int count, Data new_data)
   return (count_ost > count_non_ost) ? 1 : 0;
 }
 
+// Function to read a single Data point from a file
+int read_new_data(const char *filename, Data *new_data)
+{
+  FILE *file = fopen(filename, "r");
+  if (!file)
+  {
+    printf("Unable to open file %s\n", filename);
+    return 0;
+  }
+
+  char line[MAX_LINE];
+  if (fgets(line, MAX_LINE, file))
+  {
+    parse_line(line, new_data); // Use existing parse_line function
+  }
+
+  fclose(file);
+  return 1; // Return success
+}
+
 int main()
 {
-  omp_set_num_threads(12);                      // Set the number of threads
-  printf("Number of threads set to: %d\n", 12); // Confirm the set value
+  omp_set_num_threads(16);                      // Set the number of threads
+  printf("Number of threads set to: %d\n", 16); // Confirm the set value
 
   int num_threads = omp_get_max_threads();                          // Get the maximum number of threads available
   printf("Maximum number of threads available: %d\n", num_threads); // Check the maximum threads
@@ -173,8 +213,11 @@ int main()
     return 1; // Exit if no data was read
   }
 
-  // Example new data point for prediction
-  Data new_data = {0, 1, 65.0, 160.0, 60.0, 20, 25, 550.0, 150, 10, -5, 6.0, 25, 1500, 20.0, 45.0, 0};
+  Data new_data;
+  if (!read_new_data("./patiente.csv", &new_data)) // Read new data from file
+  {
+    return 1; // Exit if no data was read
+  }
 
   // Predict the class for the new data point
   int prediction = knn_predict(data_array, count, new_data);
