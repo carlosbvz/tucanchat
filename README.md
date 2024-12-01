@@ -1,3 +1,12 @@
-// scp -P 22022 /Users/carlosbvz/Documents/Apps/tucanchat/data/files/1732634636404.csv curso-786@kabre.cenat.ac.cr:projecto/raw
+# Final Project
 
-// scp -P 22022 /Users/carlosbvz/Documents/Apps/tucanchat/docs/avance/normalize-parallel.c curso-786@kabre.cenat.ac.cr:projecto/data/normalize-parallel.c
+## Agenda
+
+1. Review the project's scope
+2. Review Kabre folder
+3. Add data set
+4. Configure Kabre
+5. Upload dataset
+6. Run Normalization
+7. Run Prediction
+8. Review results
