@@ -111,7 +111,12 @@ int knn_predict(Data *data_array, int count, Data new_data)
   float distances[count];
   int labels[count];
 
-// Calculate distances from the new data point to all other points in parallel
+  /*
+   * Calculate distances from the new data point to all other points in parallel.
+   * This directive tells the compiler to parallelize the following for loop.
+   * Each iteration of the loop can be executed independently, allowing multiple threads
+   * to compute distances simultaneously.
+   */
 #pragma omp parallel for
   for (int i = 0; i < count; i++)
   {
@@ -119,12 +124,19 @@ int knn_predict(Data *data_array, int count, Data new_data)
     labels[i] = data_array[i].Ost; // Store the label
   }
 
-// Sort distances and get the labels of the K nearest neighbors
-// Parallelize the sorting using OpenMP
+  /*
+   * Sort distances and get the labels of the K nearest neighbors.
+   * This directive creates a team of threads to execute the following block of code in parallel.
+   */
 #pragma omp parallel
   {
     for (int i = 0; i < count - 1; i++)
     {
+      /*
+       * This directive distributes the iterations of the following for loop among the threads in the team.
+       * Each thread will work on a portion of the loop iterations, allowing for concurrent execution
+       * of the sorting process.
+       */
 #pragma omp for
       for (int j = 0; j < count - i - 1; j++)
       {
@@ -148,11 +160,19 @@ int knn_predict(Data *data_array, int count, Data new_data)
   int count_ost = 0;
   int count_non_ost = 0;
 
+  /*
+   * Count the votes for each class.
+   * This directive creates a team of threads to execute the following block of code in parallel.
+   */
 #pragma omp parallel
   {
     int local_count_ost = 0;     // Local count for ost votes
     int local_count_non_ost = 0; // Local count for non-ost votes
 
+    /*
+     * This directive distributes the iterations of the following for loop among the threads in the team.
+     * Each thread will count votes for the K nearest neighbors, allowing for concurrent execution.
+     */
 #pragma omp for
     for (int i = 0; i < K; i++)
     {
@@ -166,7 +186,11 @@ int knn_predict(Data *data_array, int count, Data new_data)
       }
     }
 
-// Update the global counts in a critical section
+    /*
+     * Update the global counts in a critical section.
+     * This directive ensures that the following block of code is executed by only one thread at a time.
+     * This is necessary to prevent race conditions when updating the shared variables count_ost and count_non_ost.
+     */
 #pragma omp critical
     {
       count_ost += local_count_ost;

@@ -19,8 +19,8 @@ export function Header() {
                     <Button color="inherit" component={Link} href="/predict">
                         Predict
                     </Button>
-                    <Button color="inherit" component={Link} href="/about">
-                        About
+                    <Button color="inherit" component={Link} href="/configure">
+                        Configure
                     </Button>
                 </Box>
             </Toolbar>

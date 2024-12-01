@@ -1,0 +1,4 @@
+{
+    "normalize": "#!/bin/bash\n#SBATCH --job-name=openmp\n#SBATCH --output=result.txt\n#SBATCH --partition=nu-wide\n#SBATCH --ntasks=16\n#SBATCH --time=00:05:00\n$SLURM_SUBMIT_DIR\nmodule load gcc/11.1.0\nexport OMP_NUM_THREADS=4\n./normalize-parallel",
+    "predict": "#!/bin/bash\n#SBATCH --job-name=openmp\n#SBATCH --output=result.txt\n#SBATCH --partition=nu-wide\n#SBATCH --ntasks=16\n#SBATCH --time=00:05:00\n$SLURM_SUBMIT_DIR\nmodule load gcc/11.1.0\nexport OMP_NUM_THREADS=4\n./normalize-parallel"
+}

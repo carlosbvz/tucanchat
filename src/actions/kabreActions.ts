@@ -21,7 +21,7 @@ export async function runNormalization(datasetId: string) {
         }
 
         // Then, run the sbatch command
-        const sbatchCommand = 'sbatch submit.slurm'
+        const sbatchCommand = 'sbatch normalize.slurm'
         const sbatchResult = await executeRemoteCommand(
             `${cdCommand} && ${sbatchCommand}`
         )
