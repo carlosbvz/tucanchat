@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1733005084.58758 "/Users/carlosbvz/Documents/Apps/tucanchat/docs/informe/informe.tex" "informe.pdf" "informe" 1733005085.46148 0
-  "/Users/carlosbvz/Documents/Apps/tucanchat/docs/informe/informe.tex" 1733005084.2858 6900 ea94a7e1446f1b355eb0e13a562f15cd ""
+["pdflatex"] 1733082142.58989 "/Users/carlosbvz/Documents/Apps/tucanchat/docs/informe/informe.tex" "informe.pdf" "informe" 1733082143.49923 0
+  "/Users/carlosbvz/Documents/Apps/tucanchat/docs/informe/informe.tex" 1733082142.26594 8395 7e1d2ced52cb9ec328bd236ab5dc97e4 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/tfm/jknappen/ec/tcrm1200.tfm" 1136768653 1536 74b7293ec3713bb7fdca8dd1bd1f469c ""
@@ -71,10 +71,10 @@
   "/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1724885340.74072 5467645 128b85b7cde5f5edc5cb7f1dd7ff8736 ""
   "/usr/local/texlive/2024/texmf-var/web2c/pdftex/pdflatex.fmt" 1724885237 8221430 1dc946afa6fdc63e8807da2ac9727556 ""
   "/usr/local/texlive/2024/texmf.cnf" 1710266656 577 e590dabc9e28c5b61546e15f63eebcdf ""
-  "informe.aux" 1733005085.37581 1771 cd9e6773798bf0c8701c81b3b602b737 "pdflatex"
-  "informe.out" 1733005085.37651 1735 ca4d4a6523c36b4c2486ed39361f40d4 "pdflatex"
-  "informe.tex" 1733005084.2858 6900 ea94a7e1446f1b355eb0e13a562f15cd ""
-  "informe.toc" 1733005085.37698 819 f44324db931fd3179a1950f38bbd7832 "pdflatex"
+  "informe.aux" 1733082143.41126 1771 6f65bc05159dd5f54c5e2d382b4047f4 "pdflatex"
+  "informe.out" 1733082143.41202 1735 ca4d4a6523c36b4c2486ed39361f40d4 "pdflatex"
+  "informe.tex" 1733082142.26594 8395 7e1d2ced52cb9ec328bd236ab5dc97e4 ""
+  "informe.toc" 1733082143.41239 819 c49a45d43a45a178b601215122a5adb1 "pdflatex"
   (generated)
   "informe.aux"
   "informe.log"

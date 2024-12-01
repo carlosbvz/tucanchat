@@ -52,6 +52,14 @@ Once uploaded, the patient records and their associated data are stored securely
 \section{Integration with Kabre Infrastructure}
 A critical feature of the application is its ability to establish a connection with the Kabre infrastructure. This integration allows the application to leverage the computational power of a supercomputer for processing large datasets. The connection is facilitated using the `node-ssh` library, enabling secure and efficient data transfer and remote command execution.
 
+In summary, the achieved integration with the Kabre infrastructure is as follows:
+
+\begin{itemize}
+    \item Uploading Dataset to Kabre so that Machine Learning Models can be trained.
+    \item Requesting normalization and prediction SLURM scripts from Kabre to process the data.
+    \item Uploading and updating the SLURM scripts on Kabre to process the data.
+\end{itemize}
+
 \section{Parallel Data Processing}
 The data processing tasks, including normalization and standardization, are implemented in C using the OpenMP library. This approach takes advantage of parallel processing capabilities to efficiently handle large volumes of data, significantly reducing computation times.
 
@@ -63,6 +71,8 @@ The data processing tasks, including normalization and standardization, are impl
   startLine: 1
   endLine: 201
   ```
+
+The provided C code implements a K-Nearest Neighbors (KNN) classification algorithm, which is designed to predict the class of a new data point based on its proximity to existing data points. The code utilizes OpenMP, a parallel programming model, to enhance performance by executing certain operations concurrently. Specifically, there are three main opportunities for parallelization within the code. First, the calculation of Euclidean distances between the new data point and all existing data points is performed in parallel using the `\#pragma omp parallel for` directive, allowing multiple threads to compute distances simultaneously. Second, the sorting of distances and corresponding labels is also parallelized, enabling efficient organization of the nearest neighbors. Lastly, the counting of votes for each class among the K nearest neighbors is executed in parallel, with a critical section ensuring safe updates to shared variables. By leveraging these parallelization opportunities, the code significantly reduces computation time, making it suitable for handling larger datasets efficiently.
 
 This comprehensive setup ensures that the application can efficiently collect, store, and process patient data, leveraging advanced computational resources for accurate and timely predictions.
 
